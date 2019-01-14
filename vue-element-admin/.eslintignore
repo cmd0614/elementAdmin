@@ -1,0 +1,4 @@
+# eslint的配置，那些做检查，那些不用做检查
+build/*.js
+config/*.js
+src/assets
