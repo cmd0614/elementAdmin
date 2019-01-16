@@ -72,6 +72,7 @@ import update from "@/api/update.js";
 
 export default {
   data() {
+    // 手机号校验
     const phonePass = (rule, value, callback) => {
       if (!/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/.test(value)) {
         callback(new Error("请再次正确的手机号"));
@@ -79,6 +80,7 @@ export default {
         callback();
       }
     };
+    // 邮箱校验
     const emailPass = (rule, value, callback) => {
       if (!/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/.test(value)) {
         callback(new Error("请再次正确的邮箱地址"));
@@ -87,9 +89,10 @@ export default {
       }
     };
     return {
-      // tableData: []
+      //初始页码
       current: 1,
       dialogVisible: false,
+      //初始用户列表
       currentUserList: {},
       // 输入框校验
       editRules: {
@@ -110,8 +113,12 @@ export default {
   },
   methods: {
     ...mapActions({
+      // 获取用户列表
       getUserList: "list/getUserlist",
-      updateList: "list/updateList"
+      // 修改用户信息
+      updateList: "list/updateList",
+      // 删除用户
+      deleteUser:'list/deleteUser'
     }),
     // 点击页码进行切换
     changeCurrent(page) {
@@ -121,10 +128,12 @@ export default {
       this.current = page;
       this.getUserList({ page });
     },
+    // 点击编辑
     handleEdit(index, row) {
       this.dialogVisible = true;
       this.currentUserList = {...row};
     },
+    // 点击遮罩层的确定
     submit() {
       this.$refs.form.validate(valid=>{
         if (valid){
@@ -148,8 +157,24 @@ export default {
         }
       })
     },
+    // 删除用户
     handleDelete(index, row) {
       // console.log(index, row);
+      let {id} = row
+      this.deleteUser({uid:id}).then(res=>{
+        this.$message({
+          message: res,
+          center: true,
+          type: 'success'
+        });
+        this.getUserList({page: this.current});
+      }).catch(err=>{
+        this.$message({
+          message: err,
+          center: true,
+          type: 'error'
+        });
+      })
     }
   }
 };
