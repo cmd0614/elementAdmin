@@ -161,7 +161,9 @@ export default {
       // 修改用户信息
       updateList: "list/updateList",
       // 删除用户
-      deleteUser:'list/deleteUser'
+      deleteUser:'list/deleteUser',
+      // 分配用户权限
+      modifyRolers:'list/modifyRolers'
     }),
     // 点击页码进行切换
     changeCurrent(page) {
@@ -179,27 +181,50 @@ export default {
     },
     // 点击遮罩层的确定
     submit() {
-      this.$refs.form.validate(valid=>{
-        if (valid){
-          console.log('currentUser...', this.currentUserList);
-          let {id,username,email,phone} = this.currentUserList;
-          this.updateList({id, username, email, phone}).then(res=>{
-            this.$message({
-              message: res,
-              center: true,
-              type: 'success'
-            });
-            this.getUserList({page: this.current});
-          }).catch(err=>{
-            this.$message({
-              message: err,
-              center: true,
-              type: 'error'
-            });
-          })
-          this.dialogVisible = false;
-        }
-      })
+      if (this.type == 'edit') {
+        this.$refs.form.validate(valid=>{
+          if (valid){
+            console.log('currentUser...', this.currentUserList);
+            let {id,username,email,phone} = this.currentUserList;
+            this.updateList({id, username, email, phone}).then(res=>{
+              this.$message({
+                message: res,
+                center: true,
+                type: 'success'
+              });
+              this.getUserList({page: this.current});
+            }).catch(err=>{
+              this.$message({
+                message: err,
+                center: true,
+                type: 'error'
+              });
+            })
+            this.dialogVisible = false;
+          }
+        })
+      } else if (this.type == 'roler') {
+        let {id} = this.currentUserList;
+        let rolersId = this.myRolers.map(item=>{
+          return this.rolers.findIndex(val=>val==item)+1
+        })
+        this.modifyRolers({uid:id, rolersId}).then(res=>{
+          this.$message({
+            message: res,
+            center: true,
+            type: 'success'
+          });
+          this.getUserList({page: this.current});
+        }).catch(err=>{
+          this.$message({
+            message: err,
+            center: true,
+            type: 'error'
+          });
+        })
+        this.dialogVisible = false;
+      }
+      
     },
     // 修改权限
     handleRolers(index, row){

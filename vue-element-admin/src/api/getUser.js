@@ -17,8 +17,8 @@ export function deleteUser(data) {
   })
 }
 
-// 分配角色
-export function setRolers(data) {
+// 分配角色权限
+export function modifyRolers(data) {
   return request({
     url: '/users/action', // 假地址 自行替换
     method: 'put',
