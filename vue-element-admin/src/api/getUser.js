@@ -16,3 +16,12 @@ export function deleteUser(data) {
     data
   })
 }
+
+// 分配角色
+export function setRolers(data) {
+  return request({
+    url: '/users/action', // 假地址 自行替换
+    method: 'put',
+    data
+  })
+}
