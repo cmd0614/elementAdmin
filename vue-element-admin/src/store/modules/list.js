@@ -1,5 +1,6 @@
 // 引入api下面请求用户列表的方法
 import { getUserList } from '@/api/getUser'
+import {update} from '@/api/update'
 const state = {
   list: []
 }
@@ -12,12 +13,27 @@ const mutations = {
 }
 
 const actions = {
+  // 获取用户列表
   getUserlist({ commit }, query) {
-    console.log(query, 'query')
     return new Promise((resolve, reject) => {
       getUserList(query).then(res => {
         // console.log(res, 'res...')
         commit('updata', res.data.data.list)
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  },
+  // 更改用户信息
+  updateList({ commit }, query) {
+    return new Promise((resolve, reject) => {
+      update(query).then(res => {
+        console.log(res, 'res////')
+        if (res.data.code === 1) {
+          resolve(res.data.msg)
+        } else {
+          reject(res.data.msg)
+        }
       }).catch(err => {
         reject(err)
       })
