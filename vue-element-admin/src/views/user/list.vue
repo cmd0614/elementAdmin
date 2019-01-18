@@ -1,5 +1,6 @@
 <template>
   <div>
+    <el-button :loading="downloadLoading" style="margin:0 0 20px 20px;" type="primary" icon="document" @click="handleDownload">{{ $t('excel.export') }} Excel</el-button>
     <el-table :data="tableData" style="width: 100%">
       <el-table-column label="ID" width="80">
         <template slot-scope="scope">
@@ -63,7 +64,7 @@
         </el-form-item>
 
         <el-form-item v-if="type == 'edit'" label="头像">
-          <el-upload class="avatar-uploader" action="123" :show-file-list="false">
+          <el-upload class="avatar-uploader" action="http://123.206.55.50:11000/upload" :show-file-list="false" :on-success="uploadImage">
             <img v-if="currentUserList.avatar" :src="currentUserList.avatar" class="avatar" style="width:50px">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
@@ -128,6 +129,7 @@ export default {
       }
     };
     return {
+      downloadLoading:false,
       //弹框类型,edit表示修改信息，roler表示修改角色
       type:'',
       rolers:['boss','developer','producter','operater','designer'],
@@ -165,6 +167,39 @@ export default {
       // 分配用户权限
       modifyRolers:'list/modifyRolers'
     }),
+    // 导出图表
+    handleDownload(){
+      this.downloadLoading = true;
+      import('@/vendor/Export2Excel').then(excel=>{
+        const tHeader = Object.keys(this.tableData[0]);
+        const data = this.tableData.map(item=>{
+          return Object.values(item)
+        })
+
+        excel.export_json_to_excel({
+          header:tHeader,// 表格头
+          data,
+          filename:'用户信息',
+          autoWidth:'true',  // 
+          bookType:'xlsx' //导出的文件格式
+        })
+        this.downloadLoading = false
+      })
+    },
+    // 上传图片
+    uploadImage(res,file,fileList){
+      console.log('res///',res,file,fileList)
+      if (res.code ===1 ) {
+        console.log(res.data[0].path)
+        this.currentUserList.avatar = res.data[0].path
+      } else {
+        this.$message({
+          message: res.msg,
+          center: true,
+          type: 'error'
+        });
+      }
+    },
     // 点击页码进行切换
     changeCurrent(page) {
       let token = "1969-12-31T23:59:59.000Z";
@@ -185,8 +220,8 @@ export default {
         this.$refs.form.validate(valid=>{
           if (valid){
             console.log('currentUser...', this.currentUserList);
-            let {id,username,email,phone} = this.currentUserList;
-            this.updateList({id, username, email, phone}).then(res=>{
+            let {id,username,avatar,email,phone} = this.currentUserList;
+            this.updateList({id, username, avatar,email, phone}).then(res=>{
               this.$message({
                 message: res,
                 center: true,

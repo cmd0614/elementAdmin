@@ -19,10 +19,13 @@ function hasPermission(roles, permissionRoles) {
 
 const whiteList = ['/login', '/register', '/auth-redirect']// no redirect whitelist
 // 导航守卫
+// 思路：登录--》判断是否有权限 1. 没有--》获取用户信息--》设置权限--》生成路由 2.有--》直接next()
 router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar
+  // 先判断token存在的话，任何页面都可以进去，
   if (getToken()) { // determine if there has token
     /* has token*/
+    // 如果用户已经登录，还去登录页面的话，就让用户去首页（优化）
     if (to.path === '/login') {
       next({ path: '/' })
       NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
@@ -30,6 +33,31 @@ router.beforeEach((to, from, next) => {
       // 说明getters是vuex里面全局的getters,.roles肯定是一个数组
       if (store.getters.roles.length === 0) { // 判断当前用户是否已拉取完user_info信息
         // 说明GetUserInfo是一个action
+        store.dispatch('GetUserInfo').then(res => { // 拉取user_info
+          console.log(res)
+          const roles = res.data.roles // note: roles must be a array! such as: ['editor','develop']
+          // 判断用户权限，根据不同权限，看到的页面也有所不同，在modules里面
+          store.dispatch('GenerateRoutes', { roles }).then(() => { // 根据roles权限生成可访问的路由表
+            router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
+            next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
+          })
+        }).catch((err) => {
+          store.dispatch('FedLogOut').then(() => {
+            Message.error(err)
+            next({ path: '/' })
+          })
+        })
+      } else {
+        // 没有动态改变权限的需求可直接next() 删除下方权限判断 ↓
+        if (hasPermission(store.getters.roles, to.meta.roles)) {
+          next()
+        } else {
+          next({ path: '/401', replace: true, query: { noGoBack: true }})
+        }
+        // 可删 ↑
+      }
+
+      if (store.getters.roles.length === 0) { // 判断当前用户是否已拉取完user_info信息
         store.dispatch('GetUserInfo').then(res => { // 拉取user_info
           const roles = res.data.roles // note: roles must be a array! such as: ['editor','develop']
           store.dispatch('GenerateRoutes', { roles }).then(() => { // 根据roles权限生成可访问的路由表

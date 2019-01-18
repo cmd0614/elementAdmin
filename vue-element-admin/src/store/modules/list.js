@@ -1,6 +1,6 @@
 // 引入api下面请求用户列表的方法
 import { getUserList, deleteUser, modifyRolers } from '@/api/getUser'
-import {update} from '@/api/update'
+import { update } from '@/api/update'
 const state = {
   list: []
 }
@@ -17,7 +17,7 @@ const actions = {
   getUserlist({ commit }, query) {
     return new Promise((resolve, reject) => {
       getUserList(query).then(res => {
-        // console.log(res, 'res...')
+        console.log(res, 'resList...')
         commit('updata', res.data.data.list)
       }).catch(err => {
         reject(err)

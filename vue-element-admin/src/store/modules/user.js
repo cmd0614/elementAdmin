@@ -1,4 +1,4 @@
-import { loginByUsername, logout, getUserInfo, register } from '@/api/login'
+import { loginByUsername, logout, register, getUserInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import md5 from 'md5'
 
@@ -49,54 +49,46 @@ const user = {
     LoginByUsername({ commit }, userInfo) {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
-        loginByUsername(username, userInfo.password).then(response => {
-          console.log(response,'666')
-          const data = response.data
-          commit('SET_TOKEN', data.token)
-          setToken(response.data.token)
-          resolve(response.data.msg)
+        loginByUsername(username, md5(userInfo.password + '1606A')).then(res => {
+          // console.log(res)
+          commit('SET_TOKEN', res.data.data.token)
+          setToken(res.data.data.token)
+          resolve()
         }).catch(error => {
           reject(error)
         })
       })
     },
     // 用户注册
-    registerGetUserName({ commit }, userInfo) {
+    registerByUserName({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
-        const username = userInfo.username.trim()
-        register(username, md5(userInfo.password + 'cmd'), userInfo.phone).then(res => {
-          console.log(res, 'res-注册返回')
-          if (res.data.code === 1) {
+        const { username, password, phone } = userInfo
+        register(username, md5(password + '1606A'), phone).then(response => {
+          console.log('response...', response)
+          if (response.data.code === 1) {
             commit('SET_TOKEN', 'admin')
             setToken('admin')
             resolve()
           } else {
-            reject(res.data.msg)
+            reject(response.data.msg)
           }
         })
       })
     },
-   
     // 获取用户信息
-    GetUserInfo({ commit, state }) {
+    GetUserInfo({ commit }, query) {
       return new Promise((resolve, reject) => {
-        getUserInfo(state.token).then(response => {
-          // 由于mockjs 不支持自定义状态码只能这样hack
-          if (!response.data) {
-            reject('Verification failed, please login again.')
-          }
-          const data = response.data
-
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
+        getUserInfo().then(res => {
+          console.log('res...', res)
+          if (res.data.code === 1) {
+            commit('SET_ROLES', res.data.data.access)
+            commit('SET_NAME', res.data.data.username)
+            commit('SET_AVATAR', res.data.data.avatar)
+            commit('SET_INTRODUCTION', res.data.data.profile)
+            resolve({ data: { roles: res.data.data.access }})
           } else {
-            reject('getInfo: roles must be a non-null array!')
+            reject(res.data.msg)
           }
-
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          commit('SET_INTRODUCTION', data.introduction)
-          resolve(response)
         }).catch(error => {
           reject(error)
         })

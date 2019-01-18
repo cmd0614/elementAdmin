@@ -98,8 +98,8 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '1111111'
+        username: 'chenmengdan',
+        password: '123'
       },
       // 表单验证规则,可以是一个，也可以是多个
       loginRules: {

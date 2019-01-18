@@ -78,7 +78,7 @@ export default {
       this.$refs.registerForm.validate(valid=>{
         if(valid) {
           // 如果成功，引用store里面的user.js的action
-          this.$store.dispatch('registerGetUserName',this.registerForm).then(res=>{
+          this.$store.dispatch('registerByUserName',this.registerForm).then(res=>{
             console.log(res,'res---register')
             this.$message({
               message: '注册成功',

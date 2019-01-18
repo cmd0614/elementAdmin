@@ -19,6 +19,7 @@ Mock.XHR.prototype.send = function() {
 // })
 
 // 登录相关
+// mock拦截 ，loginAPI.loginByUsername是mock文件夹下面的login.js里面的
 Mock.mock(/\/login\/login/, 'post', loginAPI.loginByUsername)
 Mock.mock(/\/login\/logout/, 'post', loginAPI.logout)
 Mock.mock(/\/user\/info\.*/, 'get', loginAPI.getUserInfo)

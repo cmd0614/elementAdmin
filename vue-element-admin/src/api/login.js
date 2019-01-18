@@ -6,7 +6,7 @@ export function loginByUsername(username, password) {
     password
   }
   return request({
-    url: '/login/login',
+    url: '/users/login',
     method: 'post',
     data
   })
@@ -18,16 +18,15 @@ export function logout() {
     method: 'post'
   })
 }
-
-export function getUserInfo(token) {
+// 获取用户信息
+export function getUserInfo() {
   return request({
-    url: '/user/info',
-    method: 'get',
-    params: { token }
+    url: '/users/info',
+    method: 'get'
   })
 }
 
-// 定义注册的请求接口
+// 注册
 export function register(username, password, phone) {
   return request({
     url: '/users/register',
@@ -39,4 +38,3 @@ export function register(username, password, phone) {
     }
   })
 }
-

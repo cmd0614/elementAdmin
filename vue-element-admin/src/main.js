@@ -27,6 +27,16 @@ import './permission' // permission control
 import './mock' // simulation data
 // 引入自定义过滤器
 import * as filters from './filters' // global filters
+// 引入 v-charets
+import VCharts from 'v-charts'
+Vue.use(VCharts)
+
+// mock做拦截
+// import Mock from 'mockjs'
+// Mock.mock(/\/login\/login2/, 'post', (res) => {
+//   console.log(res, 'MOckres')
+// })
+
 // 使用element-ui
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium', // set element-ui default size
